@@ -2,7 +2,7 @@
 
 ![Image Search and Download](https://i.ibb.co/1QrWs80/image-search.png)
 
-### [Live Site](https://googlepexls.netlify.app/)
+### [Live Site](https://googlepexels.netlify.app/)
 
 # Installation
 
