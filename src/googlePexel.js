@@ -20,7 +20,7 @@ function GooglePexel() {
     function handleSubmit(event) {  
         event.preventDefault();  
         const url = "https://api.pexels.com/v1/search?query=" + search + "&per_page=" + perPage;  
-        const access_token = '563492ad6f91700001000001a7f96507d83d455db06d06709929e930';  
+        const access_token = '';  
         axios.get(url, {  
             headers: {  
                 'Authorization': `${access_token}`  
