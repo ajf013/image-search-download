@@ -1,6 +1,7 @@
 .footer_content{
     text-align: center;
-    color: rgb(242, 236, 247);
+    color: rgb(240, 156, 0);
+  /* background-color: rgba(255, 166, 0, 0.91); */
 }
 .footer_main{
     padding: 50px;
@@ -18,17 +19,17 @@
     transition: 0.5s;
 }
 .footer_Icons .footer_link a{
-    color: rgba(21, 52, 136, 0.904);
+    color: rgba(255, 255, 255, 0.904);
     transform: scale(1);
     transition: 0.5s;
 }
 .footer_Icons .footer_insta a{
-    color: rgb(173, 115, 125);
+    color: rgb(228, 216, 223);
     transform: scale(1);
     transition: 0.5s;
 }
 .footer_Icons .footer_wht a{
-    color: rgba(59, 95, 59, 0.958);
+    color: rgba(26, 131, 26, 0.958);
     transform: scale(1);
     transition: 0.5s;
 }
@@ -42,11 +43,11 @@
     transform: scale(1.2);
 }
 .footer_Icons .footer_link a:hover{
-    color: rgb(70, 55, 206);
+    color: rgb(51, 39, 156);
     transform: scale(1.2);
 }
 .footer_Icons .footer_insta a:hover{
-    color: rosybrown;
+    color: rgb(198, 72, 202);
     transform: scale(1.2);
 }
 .footer_Icons .footer_wht a:hover{
