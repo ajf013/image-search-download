@@ -59,6 +59,65 @@ function GooglePexel() {
         }
     }
 
+    async function downloadWallpaper(imageUrl) {
+        try {
+            // 1. Fetch the image
+            const response = await fetch(imageUrl);
+            const originalBlob = await response.blob();
+
+            // 2. Load into an ImageBitmap
+            const imgBitmap = await createImageBitmap(originalBlob);
+
+            // 3. Determine target dimensions (screen size)
+            const targetW = window.screen.width;
+            const targetH = window.screen.height;
+
+            // 4. Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = targetW;
+            canvas.height = targetH;
+            const ctx = canvas.getContext('2d');
+
+            // 5. Calculate "Aspect Fill" crop
+            const imgRatio = imgBitmap.width / imgBitmap.height;
+            const targetRatio = targetW / targetH;
+
+            let renderW, renderH, offsetX, offsetY;
+
+            if (imgRatio > targetRatio) {
+                // Image is wider than target
+                renderH = targetH;
+                renderW = imgBitmap.width * (targetH / imgBitmap.height);
+                offsetX = (targetW - renderW) / 2;
+                offsetY = 0;
+            } else {
+                // Image is taller than target
+                renderW = targetW;
+                renderH = imgBitmap.height * (targetW / imgBitmap.width);
+                offsetX = 0;
+                offsetY = (targetH - renderH) / 2;
+            }
+
+            ctx.drawImage(imgBitmap, offsetX, offsetY, renderW, renderH);
+
+            // 6. Convert to Blob and save
+            canvas.toBlob((blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'wallpaper.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.95);
+
+        } catch (error) {
+            console.error('Wallpaper download failed:', error);
+            alert('Failed to download wallpaper. ' + error.message);
+        }
+    }
+
 
     return (
         <form onSubmit={handleSubmit} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -99,16 +158,29 @@ function GooglePexel() {
                             <div className="col-sm-4" key={index}>
                                 <Card style={{ 'marginTop': '20px' }}>
                                     <Card.Img variant="top" src={search.src.landscape} alt={search.photographer} />
-                                    <button
-                                        className="btn btn-secondary"
-                                        style={{ marginTop: '10px', width: '100%' }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            downloadImage(search.src.original);
-                                        }}
-                                    >
-                                        Download
-                                    </button>
+                                    <Card.Body>
+                                        <button
+                                            className="btn btn-secondary"
+                                            style={{ marginTop: '10px', width: '100%' }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                downloadImage(search.src.original);
+                                            }}
+                                        >
+                                            Download
+                                        </button>
+                                        <button
+                                            className="btn btn-dark"
+                                            style={{ marginTop: '5px', width: '100%', fontSize: '0.9rem' }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                downloadWallpaper(search.src.original);
+                                            }}
+                                        >
+                                            Download Wallpaper
+                                        </button>
+                                        <a href={search.src.original} target="_blank" rel="noreferrer" className="btn btn-outline-secondary" style={{ marginTop: '5px', width: '100%', fontSize: '0.9rem' }}>View Original</a>
+                                    </Card.Body>
                                 </Card>
                             </div>
                         ))}
