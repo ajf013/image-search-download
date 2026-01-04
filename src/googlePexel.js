@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import { Card } from 'react-bootstrap';
+import { Card, Modal, Button, Spinner } from 'react-bootstrap';
 import Footer from './components/Footer/Footer';
 
 function GooglePexel() {
     const [search, setSearch] = useState("");
     const [perPage, setPerPage] = useState("");
     const [result, setResult] = useState([]);
+
+    // New state for download modal
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+    const [selectedImageSrc, setSelectedImageSrc] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     function handleChange(event) {
         const search = event.target.value;
@@ -32,83 +37,120 @@ function GooglePexel() {
 
     }
 
-    async function downloadImage(imageUrl) {
+    // Triggered when user clicks "Download" on a card
+    function handleDownloadClick(src) {
+        setSelectedImageSrc(src);
+        setShowDownloadModal(true);
+    }
+
+    // Handle orientation selection
+    async function handleDownloadConfirm(orientation) {
+        if (!selectedImageSrc) return;
+        setIsProcessing(true);
         try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-
-            // Try to use the File System Access API to ask for a path
-            if (window.showSaveFilePicker) {
-                try {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: 'image.jpg',
-                        types: [
-                            {
-                                description: 'JPEG Image',
-                                accept: { 'image/jpeg': ['.jpg', '.jpeg'] },
-                            },
-                            {
-                                description: 'PNG Image',
-                                accept: { 'image/png': ['.png'] },
-                            },
-                        ],
-                    });
-
-                    const writable = await handle.createWritable();
-
-                    // Convert if necessary
-                    let blobToWrite = blob;
-                    const name = handle.name.toLowerCase();
-
-                    if (name.endsWith('.png') && blob.type !== 'image/png') {
-                        blobToWrite = await convertBlobToPng(blob);
-                    }
-                    // Note: Pexels images are JPEGs. If user saves as JPEG, we use original blob.
-                    // If we implemented other formats like WebP, we'd enable conversion there too.
-
-                    await writable.write(blobToWrite);
-                    await writable.close();
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        console.error('File picker error:', err);
-                        alert('File save failed: ' + err.message);
-                    }
-                }
-            } else {
-                // Fallback for browsers that don't support File System Access API
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'image.jpg';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }
+            await processAndDownload(selectedImageSrc, orientation);
+            setShowDownloadModal(false);
         } catch (error) {
-            console.error('Download failed:', error);
-            alert('Failed to download image. ' + error.message);
+            console.error(error);
+            alert("Error downloading image: " + error.message);
+        } finally {
+            setIsProcessing(false);
         }
     }
 
-    // Helper to convert images using Canvas
-    async function convertBlobToPng(sourceBlob) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob((pngBlob) => {
-                    resolve(pngBlob);
-                }, 'image/png');
-            };
-            img.onerror = reject;
-            img.src = URL.createObjectURL(sourceBlob);
-        });
+    async function processAndDownload(imageUrl, orientation) {
+        // 1. Fetch the image
+        const response = await fetch(imageUrl);
+        const originalBlob = await response.blob();
+
+        // 2. Load into an Image object
+        const imgBitmap = await createImageBitmap(originalBlob);
+
+        // 3. Determine target dimensions
+        // We use window.screen for device physical size
+        const screenW = window.screen.width;
+        const screenH = window.screen.height;
+
+        let targetW, targetH;
+
+        if (orientation === 'portrait') {
+            targetW = Math.min(screenW, screenH);
+            targetH = Math.max(screenW, screenH);
+        } else {
+            // Landscape
+            targetW = Math.max(screenW, screenH);
+            targetH = Math.min(screenW, screenH);
+        }
+
+        // 4. Calculate crop to cover target dimensions (Aspect Fill)
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+
+        // Calculate scaling
+        const imgRatio = imgBitmap.width / imgBitmap.height;
+        const targetRatio = targetW / targetH;
+
+        let renderW, renderH, offsetX, offsetY;
+
+        if (imgRatio > targetRatio) {
+            // Image is wider than target
+            renderH = targetH;
+            renderW = imgBitmap.width * (targetH / imgBitmap.height);
+            offsetX = (targetW - renderW) / 2;
+            offsetY = 0;
+        } else {
+            // Image is taller than target
+            renderW = targetW;
+            renderH = imgBitmap.height * (targetW / imgBitmap.width);
+            offsetX = 0;
+            offsetY = (targetH - renderH) / 2;
+        }
+
+        ctx.drawImage(imgBitmap, offsetX, offsetY, renderW, renderH);
+
+        // 5. Convert to Blob
+        const processedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+
+        // 6. Save
+        await saveBlob(processedBlob, `image-${orientation}.jpg`);
     }
+
+    async function saveBlob(blob, suggestedName) {
+        // Try to use the File System Access API
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: suggestedName,
+                    types: [{
+                        description: 'JPEG Image',
+                        accept: { 'image/jpeg': ['.jpg', '.jpeg'] },
+                    }],
+                });
+                const writable = await handle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('File picker error:', err);
+                    alert('File save failed: ' + err.message);
+                }
+            }
+        } else {
+            // Fallback
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = suggestedName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+    }
+
+
     return (
         <form onSubmit={handleSubmit} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <h1 style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '20px', textShadow: '2px 2px 4px #000000', fontWeight: 'bold' }}>
@@ -140,7 +182,7 @@ function GooglePexel() {
                                         style={{ marginTop: '10px', width: '100%' }}
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            downloadImage(search.src.original);
+                                            handleDownloadClick(search.src.original);
                                         }}
                                     >
                                         Download
@@ -151,6 +193,29 @@ function GooglePexel() {
                     </div>
                 </div>
             </div>
+            <Modal show={showDownloadModal} onHide={() => !isProcessing && setShowDownloadModal(false)} centered>
+                <Modal.Header closeButton={!isProcessing}>
+                    <Modal.Title>Select Download Format</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center">
+                    <p>Choose an orientation to fit your device:</p>
+                    {isProcessing ? (
+                        <Spinner animation="border" role="status">
+                            <span className="sr-only">Processing...</span>
+                        </Spinner>
+                    ) : (
+                        <div className="d-flex justify-content-around">
+                            <Button variant="primary" onClick={() => handleDownloadConfirm('portrait')}>
+                                Portrait (Vertical)
+                            </Button>
+                            <Button variant="success" onClick={() => handleDownloadConfirm('landscape')}>
+                                Landscape (Horizontal)
+                            </Button>
+                        </div>
+                    )}
+                </Modal.Body>
+            </Modal>
+
             <Footer />
         </form>
     )
