@@ -153,11 +153,14 @@ image-search-download/
 
 ---
 
-## 📬 Contact & Links
+## 👥 Author
 
-Feel free to connect or ask questions!
+### 👤 Francis Ponnu Cruz I
+> **Azure Cloud & DevOps Engineer | Microsoft Certified Trainer (MCT)**
 
-* **Francis Cruz**: [![Linkedin Badge](https://img.shields.io/badge/linkedin-%230077B5.svg?&style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ajf013-francis-cruz/)
-* **GitHub Profile**: [![Github Badge](https://img.shields.io/badge/github-333?style=flat-square&logo=github&logoColor=white)](https://github.com/ajf013)
-* **Email Contact**: [![Mail Badge](https://img.shields.io/badge/email-c14438?style=flat-square&logo=Gmail&logoColor=white)](mailto:cruzmma2021@gmail.com)
-* **Twitter/X**: [![Twitter Badge](https://img.shields.io/badge/twitter-1DA1F2?style=flat-square&logo=twitter&logoColor=white)](https://x.com/Itsme_Ajf013)
+#### 🌐 Connect with Me:
+[![GitHub](https://img.shields.io/badge/GitHub-ajf013-181717?style=flat-square&logo=github)](https://github.com/ajf013)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Francis_Cruz-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/ajf013-francis-cruz/)
+[![Twitter/X](https://img.shields.io/badge/X-@Itsme__Ajf013-000000?style=flat-square&logo=x)](https://x.com/Itsme_Ajf013)
+[![Website](https://img.shields.io/badge/Website-fcruz.org-2D3748?style=flat-square&logo=googlechrome&logoColor=white)](https://fcruz.org)
+[![Linktree](https://img.shields.io/badge/Linktree-AJF013-39E09B?style=flat-square&logo=linktree&logoColor=white)](https://linktr.ee/AJF013)
