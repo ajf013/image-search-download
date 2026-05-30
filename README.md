@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/e02e90b2-da8d-4635-9b1a-d47b7d1982b7/deploy-status)](https://app.netlify.com/projects/googlepexels/deploys)  
 
-[![Live Site](https://img.shields.io/badge/Live%20Site-googlepexels.netlify.app-00C7B7?style=flat-square&logo=netlify)](https://img.fcruz.org/)
+[![Live Site](https://img.shields.io/badge/Live%20Site-img.fcruz.org-00C7B7?style=flat-square&logo=netlify)](https://img.fcruz.org/)
 
 ImgSearch Pro is a Progressive Web Application (PWA) built with React 18 and styled with glassmorphism aesthetics. It allows users to search for high-resolution graphics and photographs via the Pexels API, preview them in-app via an immersive lightbox, choose custom file formats (JPEG, PNG, WEBP), crop them to their specific screen size as device wallpapers, and run completely offline when installed.
 
