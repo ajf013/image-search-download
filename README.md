@@ -1,6 +1,6 @@
 # ImgSearch Pro PWA
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/a15db3b9-1f9f-4318-971c-f230f40d7c71/deploy-status)](https://app.netlify.com/sites/googlepexels/deploys)  
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e02e90b2-da8d-4635-9b1a-d47b7d1982b7/deploy-status)](https://app.netlify.com/projects/googlepexels/deploys)  
 
 [![Live Site](https://img.shields.io/badge/Live%20Site-googlepexels.netlify.app-00C7B7?style=flat-square&logo=netlify)](https://img.fcruz.org/)
 
